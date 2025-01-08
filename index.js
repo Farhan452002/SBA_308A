@@ -29,4 +29,38 @@ Requirements:
 11. Level of effort displayed in creativity, presentation, and user experience.
 */
 
-console.log("Test if HTML and JS are linked");
+
+import { fetchBreeds, fetchCatImages, addCatBreed } from './api.js';
+import { displayBreeds, displayCatImages, displayError } from './ui.js';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const breeds = await fetchBreeds();
+    displayBreeds(breeds);
+
+    document.getElementById('breed-select').addEventListener('change', async (event) => {
+      const breedId = event.target.value;
+      if (breedId) {
+        try {
+          const images = await fetchCatImages(breedId);
+          displayCatImages(images);
+        } catch (error) {
+          displayError('Error fetching cat images.');
+        }
+      }
+    });
+
+    document.getElementById('add-breed-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const breedName = document.getElementById('breed-name').value;
+      try {
+        await addCatBreed({ name: breedName });
+        alert('Breed added successfully!');
+      } catch (error) {
+        displayError('Error adding new breed.');
+      }
+    });
+  } catch (error) {
+    displayError('Error fetching breeds.');
+  }
+});
